@@ -82,54 +82,9 @@ float Path::PathCost() const{
     return Cost;
 }
 
-/*Path Graf::Dijkstra(char nFra, char nTil){
-
-    std::priority_queue<Path,std::vector<Path>,std::greater<>> Paths;
-    std::priority_queue<Path,std::vector<Path>,std::greater<>> AllPaths;
-    auto S = finn_node(nFra);
-    auto T = finn_node(nTil);
-
-
-    for(auto sKanter: S->m_kanter){
-        Path p{};
-            Kant start(0,S); // fake kant til S
-            p.Kanter.push_back(start);
-            p.Kanter.push_back(sKanter);
-            sKanter.m_tilnode->m_besokt = true;
-            if(sKanter.m_tilnode == T) {
-                AllPaths.push(p);
-            }
-        p.Print();
-        Paths.push(p);
-    }
-    Path ShortestPath;
-    while(!Paths.empty()){
-        ShortestPath = Paths.top();
-        Paths.pop(); // remove top
-        //if(ShortestPath.Kanter.back()) break;
-       // auto LastKant = ShortestPath.Kanter.back().m_tilnode->m_kanter; //kantene til siste node i nåværende korteste path
-        for(auto sKanter : ShortestPath.Kanter.back().m_tilnode->m_kanter){
-            Path p{ShortestPath};
-            if(sKanter.m_tilnode != T ){
-                p.Kanter.push_back(sKanter);
-                sKanter.m_tilnode->m_besokt = true;
-            }
-            if(sKanter.m_tilnode == T) {
-                p.Kanter.push_back(sKanter);
-                AllPaths.push(p);
-            }
-
-            p.Print();
-            Paths.push(p);
-        }
-    }
-
-    return AllPaths.top(); // return is wrong
-}*/
 Path Graf::Dijkstra(char nFra, char nTil){
 
     std::priority_queue<Path,std::vector<Path>,std::greater<>> Paths;
-    //std::priority_queue<Path,std::vector<Path>,std::greater<>> AllPaths;
     auto S = finn_node(nFra);
     auto T = finn_node(nTil);
 
@@ -141,13 +96,13 @@ Path Graf::Dijkstra(char nFra, char nTil){
         auto ShortestPath = Paths.top();
         Paths.pop(); // remove top
 
-        if(ShortestPath.Kanter.back().m_tilnode == T ) return ShortestPath; // return shortest path
+        if(ShortestPath.Kanter.back().m_tilnode == T ) return ShortestPath;// return shortest path
 
         ShortestPath.Kanter.back().m_tilnode->m_besokt = true;
-        for(auto sKanter : ShortestPath.Kanter.back().m_tilnode->m_kanter){
-            if(sKanter.m_tilnode->m_besokt) continue;
+        for(auto Kant : ShortestPath.Kanter.back().m_tilnode->m_kanter){
+            if(Kant.m_tilnode->m_besokt) continue;
             Path p{ShortestPath};
-            p.Kanter.push_back(sKanter);
+            p.Kanter.push_back(Kant);
             Paths.push(p);
             p.Print();
         }
