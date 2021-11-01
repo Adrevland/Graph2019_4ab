@@ -83,7 +83,8 @@ float Path::PathCost() const{
 
 Path Graf::Dijkstra(char nFra, char nTil){
 
-    std::priority_queue<Path,std::vector<Path>,std::greater<>> Paths;
+    std::priority_queue<Path,std::vector<Path>,std::greater<>> TempPaths;
+    std::priority_queue<Path,std::vector<Path>,std::greater<>> AllPaths;
     auto S = finn_node(nFra);
     auto T = finn_node(nTil);
 
@@ -94,14 +95,17 @@ Path Graf::Dijkstra(char nFra, char nTil){
             p.Kanter.push_back(start);
             p.Kanter.push_back(sKanter);
             sKanter.m_tilnode->m_besokt = true;
-            if(sKanter.m_tilnode == T) Paths.push(p);
+            if(sKanter.m_tilnode == T) {
+                TempPaths.push(p);
+                AllPaths.push(p);
+            }
         p.Print();
-        Paths.push(p);
+        TempPaths.push(p);
     }
     Path ShortestPath;
-    while(!Paths.empty()){
-        ShortestPath = Paths.top();
-        Paths.pop(); // remove top
+    while(!TempPaths.empty()){
+        ShortestPath = TempPaths.top();
+        TempPaths.pop(); // remove top
         //if(ShortestPath.Kanter.back()) break;
        // auto LastKant = ShortestPath.Kanter.back().m_tilnode->m_kanter; //kantene til siste node i nåværende korteste path
         for(auto sKanter : ShortestPath.Kanter.back().m_tilnode->m_kanter){
@@ -110,13 +114,17 @@ Path Graf::Dijkstra(char nFra, char nTil){
                 p.Kanter.push_back(sKanter);
                 sKanter.m_tilnode->m_besokt = true;
             }
-            if(sKanter.m_tilnode == T) break;
+            if(sKanter.m_tilnode == T) {
+                p.Kanter.push_back(sKanter);
+                AllPaths.push(p);
+            }
+
             p.Print();
-            Paths.push(p);
+            TempPaths.push(p);
         }
     }
 
-    return ShortestPath;
+    return AllPaths.top(); // return is wrong
 }
 
 
@@ -141,7 +149,7 @@ int main() {
 
 
     auto ShortestPath = TestGraf.Dijkstra('A','E');
-    std::cout << "Shortest path ? ";
+    std::cout << "Shortest path ";
     ShortestPath.Print();
 
     return 0;
