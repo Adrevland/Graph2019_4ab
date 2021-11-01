@@ -59,7 +59,9 @@ void Graf::settinn_kant(char fra_navn, char til_navn, float vekt) {
 }
 
 struct Path{
-    Path() = default; // empty constructor
+    Path() = default;
+    Path(Kant start){Kanter.push_back(start);}
+
     std::list<Kant> Kanter;
     float PathCost() const;
     bool operator > (const Path& rightside)const {return PathCost() > rightside.PathCost();};
@@ -80,10 +82,9 @@ float Path::PathCost() const{
     return Cost;
 }
 
+/*Path Graf::Dijkstra(char nFra, char nTil){
 
-Path Graf::Dijkstra(char nFra, char nTil){
-
-    std::priority_queue<Path,std::vector<Path>,std::greater<>> TempPaths;
+    std::priority_queue<Path,std::vector<Path>,std::greater<>> Paths;
     std::priority_queue<Path,std::vector<Path>,std::greater<>> AllPaths;
     auto S = finn_node(nFra);
     auto T = finn_node(nTil);
@@ -96,16 +97,15 @@ Path Graf::Dijkstra(char nFra, char nTil){
             p.Kanter.push_back(sKanter);
             sKanter.m_tilnode->m_besokt = true;
             if(sKanter.m_tilnode == T) {
-                TempPaths.push(p);
                 AllPaths.push(p);
             }
         p.Print();
-        TempPaths.push(p);
+        Paths.push(p);
     }
     Path ShortestPath;
-    while(!TempPaths.empty()){
-        ShortestPath = TempPaths.top();
-        TempPaths.pop(); // remove top
+    while(!Paths.empty()){
+        ShortestPath = Paths.top();
+        Paths.pop(); // remove top
         //if(ShortestPath.Kanter.back()) break;
        // auto LastKant = ShortestPath.Kanter.back().m_tilnode->m_kanter; //kantene til siste node i nåværende korteste path
         for(auto sKanter : ShortestPath.Kanter.back().m_tilnode->m_kanter){
@@ -120,11 +120,38 @@ Path Graf::Dijkstra(char nFra, char nTil){
             }
 
             p.Print();
-            TempPaths.push(p);
+            Paths.push(p);
         }
     }
 
     return AllPaths.top(); // return is wrong
+}*/
+Path Graf::Dijkstra(char nFra, char nTil){
+
+    std::priority_queue<Path,std::vector<Path>,std::greater<>> Paths;
+    //std::priority_queue<Path,std::vector<Path>,std::greater<>> AllPaths;
+    auto S = finn_node(nFra);
+    auto T = finn_node(nTil);
+
+    //fake first kant S
+    Path p{Kant{0,S}};
+        Paths.push(p);
+
+    while(!Paths.empty()){
+        auto ShortestPath = Paths.top();
+        Paths.pop(); // remove top
+
+        if(ShortestPath.Kanter.back().m_tilnode == T ) return ShortestPath; // return shortest path
+
+        ShortestPath.Kanter.back().m_tilnode->m_besokt = true;
+        for(auto sKanter : ShortestPath.Kanter.back().m_tilnode->m_kanter){
+            if(sKanter.m_tilnode->m_besokt) continue;
+            Path p{ShortestPath};
+            p.Kanter.push_back(sKanter);
+            Paths.push(p);
+            p.Print();
+        }
+    }
 }
 
 
@@ -138,6 +165,10 @@ int main() {
     TestGraf.settinn_node('D');
     TestGraf.settinn_node('E');
 
+    //Bigger graph
+    TestGraf.settinn_node('F');
+    TestGraf.settinn_node('G');
+
     //lag kanter med vekt
     TestGraf.settinn_kant('A','B',1);
     TestGraf.settinn_kant('A','C',2);
@@ -147,8 +178,15 @@ int main() {
     TestGraf.settinn_kant('A','E',5);
     TestGraf.settinn_kant('C','E',4);
 
+    //bigger graph
+    TestGraf.settinn_kant('D','A',1);
+    TestGraf.settinn_kant('F','G',3);
+    TestGraf.settinn_kant('G','F',2);
+    TestGraf.settinn_kant('E','F',3);
+    TestGraf.settinn_kant('A','G',8);
+    TestGraf.settinn_kant('A','F',20);
 
-    auto ShortestPath = TestGraf.Dijkstra('A','E');
+    auto ShortestPath = TestGraf.Dijkstra('A','F');
     std::cout << "Shortest path ";
     ShortestPath.Print();
 
