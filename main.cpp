@@ -35,7 +35,7 @@ struct Graf {
     Path Dijkstra(char nFra, char nTil);
 };
 
-Node *Graf::finn_node(char navn) {
+Node* Graf::finn_node(char navn) {
    for(auto n : noder){
        if(n->m_navn == navn) return n;
    }
@@ -68,7 +68,7 @@ struct Path{
         for(auto Kant : Kanter){
             std::cout << Kant.m_tilnode->m_navn;
         }
-        std::cout << " (" << PathCost() << " ) \n";
+        std::cout << " (" << PathCost() << ") \n";
     }
 };
 
@@ -90,27 +90,33 @@ Path Graf::Dijkstra(char nFra, char nTil){
 
     for(auto sKanter: S->m_kanter){
         Path p{};
+            Kant start(0,S); // fake kant til S
+            p.Kanter.push_back(start);
             p.Kanter.push_back(sKanter);
             sKanter.m_tilnode->m_besokt = true;
             if(sKanter.m_tilnode == T) Paths.push(p);
         p.Print();
         Paths.push(p);
     }
-
+    Path ShortestPath;
     while(!Paths.empty()){
-        auto ShortestPath = Paths.top();
-        auto LastKant = ShortestPath.Kanter.back().m_tilnode->m_kanter; //kantene til siste node i nåværende korteste path
-        for(auto sKanter : LastKant){
-            Path p{};
-            if(sKanter.m_tilnode != T && !sKanter.m_tilnode->m_besokt){
+        ShortestPath = Paths.top();
+        Paths.pop(); // remove top
+        //if(ShortestPath.Kanter.back()) break;
+       // auto LastKant = ShortestPath.Kanter.back().m_tilnode->m_kanter; //kantene til siste node i nåværende korteste path
+        for(auto sKanter : ShortestPath.Kanter.back().m_tilnode->m_kanter){
+            Path p{ShortestPath};
+            if(sKanter.m_tilnode != T ){
                 p.Kanter.push_back(sKanter);
                 sKanter.m_tilnode->m_besokt = true;
             }
+            if(sKanter.m_tilnode == T) break;
+            p.Print();
             Paths.push(p);
         }
     }
 
-    return Paths.top();
+    return ShortestPath;
 }
 
 
@@ -135,7 +141,8 @@ int main() {
 
 
     auto ShortestPath = TestGraf.Dijkstra('A','E');
-
+    std::cout << "Shortest path ? ";
+    ShortestPath.Print();
 
     return 0;
 }
