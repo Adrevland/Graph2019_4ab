@@ -63,6 +63,13 @@ struct Path{
     std::list<Kant> Kanter;
     float PathCost() const;
     bool operator > (const Path& rightside)const {return PathCost() > rightside.PathCost();};
+
+    void Print(){
+        for(auto Kant : Kanter){
+            std::cout << Kant.m_tilnode->m_navn;
+        }
+        std::cout << " (" << PathCost() << " ) \n";
+    }
 };
 
 float Path::PathCost() const{
@@ -83,11 +90,10 @@ Path Graf::Dijkstra(char nFra, char nTil){
 
     for(auto sKanter: S->m_kanter){
         Path p{};
-        if(sKanter.m_tilnode != T){
             p.Kanter.push_back(sKanter);
             sKanter.m_tilnode->m_besokt = true;
             if(sKanter.m_tilnode == T) Paths.push(p);
-        }
+        p.Print();
         Paths.push(p);
     }
 
@@ -128,7 +134,7 @@ int main() {
     TestGraf.settinn_kant('C','E',4);
 
 
-   auto ShortestPath = TestGraf.Dijkstra('A','E');
+    auto ShortestPath = TestGraf.Dijkstra('A','E');
 
 
     return 0;
